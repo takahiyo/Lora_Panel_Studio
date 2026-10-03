@@ -51,3 +51,7 @@
 - 調査・提案まで完了。コード変更、エンジンのダウンロード、AI処理の実装・画質検証は未実施。添付計画の全項目を承認済み仕様とは扱わない。
 - waifu2x-ncnn-vulkanとReal-ESRGAN-ncnn-vulkanの公式READMEを確認。実機GPU/OSの読み取りはアクセス制限で未確認。RTX 3060 Ti等は添付計画の想定値。
 - 現行の分割機能と通常リサイズの状態は変わっていない。実装時は上記の統合案を読み、AGENTS.md・開発計画・起動構成を新機能に合わせて更新する。
+
+## 最新のサンプル差し替え（2026-10-03）
+ユーザー指定のcodex-clipboard-126bbf9b-ccc3-4a2b-9812-9a640b01da9e.pngをassets/reference.pngへ反映。1055×1491px、参考43枠・既定42枚選択をブラウザで確認。node build.mjs成功、既存テスト13/13成功。キャラクター・配色の変更をプレビューで確認。
+差し替え後の42枚ZIPは87ファイル。全CRC・原寸/出力PNG寸法・設定JSONを確認。確認一覧outputs/sample-contact-sheet.pngも新画像へ更新。
