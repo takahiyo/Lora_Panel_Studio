@@ -42,5 +42,16 @@ test('filename generation prevents paths, Windows device names and collisions by
 });
 test('prompts match requested matrix/color and describe reference dimensions without guarantee',()=>{
   const p=C.prompt({rows:1,cols:3,preset:'body',size:[1536,1024],color:'#ff00ff'});
-  assert.match(p,/1行×3列/);assert.match(p,/参考 1536×1024/);assert.match(p,/頭頂から靴まで/);assert.match(p,/#ff00ff/);
+  assert.match(p,/1行×3列/);assert.match(p,/参考 1536×1024/);assert.match(p,/頭頂から足先/);assert.match(p,/#ff00ff/);
+  assert.match(p,/マス内部を再分割しないでください/);assert.match(p,/ニュートラルグレーに統一/);assert.match(p,/キャラクター本人を基準/);
+  assert.doesNotMatch(p,/固定仕様（全マス共通/);
+});
+test('character spec is appended without removing fixed rules, and presets stay character-agnostic',()=>{
+  const p=C.prompt({rows:2,cols:2,preset:'details',size:[1024,1024],color:'#ff00ff',character:'眼鏡を常に着用'});
+  assert.match(p,/固定仕様（全マス共通[^\n]*\n眼鏡を常に着用/);assert.match(p,/マス内部を再分割しないでください/);assert.match(p,/単一の接写/);
+  for(const key of Object.keys(C.PRESETS)){
+    const preset=C.PRESETS[key];assert.equal(typeof preset.framing,'string');
+    if(key!=='custom') assert.equal(preset.names.length,preset.rows*preset.cols);
+    assert.doesNotMatch(preset.descriptions.join(),/リボン|スカート|ワンピース/);
+  }
 });

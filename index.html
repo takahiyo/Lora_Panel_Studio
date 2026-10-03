@@ -24,7 +24,7 @@
 <button id="open" class="upload"><span aria-hidden="true">＋</span><strong>画像を選ぶ</strong><small>PNG / JPEG / WebP ・ 35 MBまで</small></button><input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
 <p class="muted compact">画像はこのブラウザ内で処理します。</p>
 <div class="section-title separated"><span class="step">2</span><h2>分割を設定</h2></div>
-<label>資料タイプ<select id="preset"><option value="expressions">表情 · 2行 × 3列</option><option value="views">顔の三面図 · 1行 × 3列</option><option value="body">全身の三面図 · 1行 × 3列</option><option value="details">髪・衣装の詳細 · 2行 × 2列</option><option value="custom">カスタム</option></select></label>
+<label>資料タイプ<select id="preset"><option value="expressions">表情 · 2行 × 3列</option><option value="views">顔の三面図 · 1行 × 3列</option><option value="body">全身の三面図 · 1行 × 3列</option><option value="details">髪・衣装の詳細 · 2行 × 2列</option><option value="angles">顔の向き追加 · 2行 × 2列</option><option value="poses">動作・ポーズ · 2行 × 2列</option><option value="custom">カスタム</option></select></label>
 <div class="pair"><label>行数<input id="rows" type="number" min="1" max="10" value="2"></label><label>列数<input id="cols" type="number" min="1" max="10" value="3"></label></div>
 <div class="pair"><label>枠線の色<input id="color" type="color" value="#ff00ff"></label><label>内側余白 <span>px</span><input id="inset" type="number" min="0" max="100" value="4"></label></div>
 <button id="detect" class="primary full" disabled>枠線から自動分割</button><button id="grid" class="secondary full" disabled>均等グリッドで分割</button>
@@ -60,20 +60,36 @@
 </main>
 <main id="promptView" class="prompt-view" hidden>
 <section class="prompt-intro"><span class="eyebrow">DESIGNED FOR CHATGPT</span><h1>分けやすい素材から、<br>はじめよう。</h1><p>このアプリで切り出しやすい資料画像を、<br>ChatGPTに作成してもらうための指示を用意します。</p><div class="prompt-note"><strong>画像の実寸に合わせて処理します</strong><p>サイズは参考値です。ChatGPTで指定どおりの画素数や配置になることを保証するものではありません。生成後に枠を確認してください。</p><a href="https://developers.openai.com/api/docs/guides/image-generation" target="_blank" rel="noreferrer">OpenAI公式の画像サイズ資料 ↗</a></div><p class="muted">顔や表情は少数マス、全身は縦長のマスを推奨。1枚に詰め込みすぎないことで、元の細部を確保しやすくなります。</p></section>
-<section class="prompt-controls"><div class="section-title"><span class="step">1</span><h2>生成するシート</h2></div><label>資料タイプ<select id="promptPreset"><option value="expressions">表情</option><option value="views">顔の三面図</option><option value="body">全身の三面図</option><option value="details">髪・衣装の詳細</option><option value="custom">カスタム</option></select></label><div class="pair"><label>行数<input type="number" id="promptRows" min="1" max="10" value="2"></label><label>列数<input type="number" id="promptCols" min="1" max="10" value="3"></label></div><label>キャンバスの形状 <span>参考寸法</span><select id="promptSize"><option value="1536x1024">横長 · 1536 × 1024</option><option value="1024x1024">正方形 · 1024 × 1024</option><option value="1024x1536">縦長 · 1024 × 1536</option></select></label><label>枠線の色<input type="color" id="promptColor" value="#ff00ff"></label><label>キャラクターの説明 <span>任意</span><textarea id="character" rows="3" placeholder="空欄なら、添付した資料画像のキャラクターを維持する指示になります。"></textarea></label><label>マスの内容 <span>1行に1マス・左上から</span><textarea id="labels" rows="6"></textarea></label><button id="usePrompt" class="secondary full">この行列・色を分割設定に反映</button></section>
+<section class="prompt-controls"><div class="section-title"><span class="step">1</span><h2>生成するシート</h2></div><label>資料タイプ<select id="promptPreset"><option value="expressions">表情</option><option value="views">顔の三面図</option><option value="body">全身の三面図</option><option value="details">髪・衣装の詳細</option><option value="angles">顔の向き追加</option><option value="poses">動作・ポーズ</option><option value="custom">カスタム</option></select></label><div class="pair"><label>行数<input type="number" id="promptRows" min="1" max="10" value="2"></label><label>列数<input type="number" id="promptCols" min="1" max="10" value="3"></label></div><label>キャンバスの形状 <span>参考寸法</span><select id="promptSize"><option value="1536x1024">横長 · 1536 × 1024</option><option value="1024x1024">正方形 · 1024 × 1024</option><option value="1024x1536">縦長 · 1024 × 1536</option></select></label><label>枠線の色<input type="color" id="promptColor" value="#ff00ff"></label><label>キャラクターの固定仕様 <span>任意</span><textarea id="character" rows="4" placeholder="共通ルールに追加されます。崩れやすい点を具体的に。&#10;例: 髪飾りは本人の右側に1つ（正面では画面左、背面では画面右）。&#10;例: 眼鏡は常に着用。上着の前は閉じる。基準画像にない装飾は加えない。"></textarea></label><label>マスの内容 <span>1行に1マス・左上から</span><textarea id="labels" rows="6"></textarea></label><button id="usePrompt" class="secondary full">この行列・色を分割設定に反映</button></section>
 <section class="prompt-output"><div class="preview-heading"><div><span class="eyebrow">YOUR GENERATION BRIEF</span><h2>ChatGPTに渡すプロンプト</h2></div><button id="copyPrompt" class="primary">コピー</button></div><textarea id="promptText" readonly aria-label="生成用プロンプト"></textarea><div id="promptStatus" class="notice" role="status">ChatGPTでキャラクター資料を添付し、このプロンプトを貼り付けてください。</div><div class="prompt-tips"><strong>生成後は、この順番で。</strong><p>画像をダウンロード → 分割画面で読み込み → 枠線から自動分割 → 切れや枠線の残りを確認 → ZIP保存。</p></div></section>
 </main>
 <footer><span>LoRA Panel Studio</span><span>画像の送信なし · APIキー不要 · ブラウザ内AI処理</span></footer>
 <script>/* Shared by the offline browser app and Node tests. Rectangles use normalized edges. */
 (function (root) {
   'use strict';
-  const VERSION = '0.2.0';
+  const VERSION = '0.3.0';
   const PRESETS = {
-    expressions: {title:'表情', rows:2, cols:3, size:[1536,1024], names:['neutral','happy_smile','surprised','angry','embarrassed','eyes_closed'], descriptions:['通常の表情','明るい笑顔','驚き','怒り','照れ','目を閉じた笑顔']},
-    views: {title:'顔の三面図', rows:1, cols:3, size:[1536,1024], names:['face_front','face_side','face_back'], descriptions:['顔の正面','顔の側面','頭部の背面']},
-    body: {title:'全身の三面図', rows:1, cols:3, size:[1536,1024], names:['body_front','body_side','body_back'], descriptions:['全身の正面','全身の側面','全身の背面']},
-    details: {title:'髪・衣装の詳細', rows:2, cols:2, size:[1024,1024], names:['hair_detail','ribbon_detail','neckline_detail','outfit_detail'], descriptions:['髪の詳細','リボンの詳細','襟元の詳細','衣装の詳細']},
-    custom: {title:'カスタム', rows:2, cols:3, size:[1536,1024], names:[], descriptions:[]}
+    expressions: {title:'表情', rows:2, cols:3, size:[1536,1024], names:['neutral','happy_smile','surprised','angry','embarrassed','eyes_closed'], descriptions:['通常の表情（正面）','明るい笑顔（正面）','驚き（正面）','怒り（正面）','照れ（正面）','目を閉じた笑顔（正面）'],
+      framing:'各マスは頭頂から肩の上端までの顔のアップにし、全マスで同じ正面向き・同じ大きさ・同じ位置に頭部を揃えてください。胸から下や半身は入れないでください。',
+      rule:'表情の違いは主に目・眉・口で表し、顔の骨格・髪型・装飾品・衣装・顔の向き・画角は全マスで同じにしてください。'},
+    views: {title:'顔の三面図', rows:1, cols:3, size:[1536,1024], names:['face_front','face_side','face_back'], descriptions:['頭部を真正面から見た図','頭部を真横から見た図（本人の左側面が見える向き）','頭部を真後ろから見た図'],
+      framing:'各マスは頭頂から首元・肩の上端までの頭部だけにし、胸や半身は入れないでください。全マスで頭部の大きさと高さを揃えてください。',
+      rule:'表情は全マス通常の表情にしてください。向きは指定した1方向だけにし、斜めの図や別角度の小図を加えないでください。'},
+    body: {title:'全身の三面図', rows:1, cols:3, size:[1536,1024], names:['body_front','body_side','body_back'], descriptions:['全身を真正面から見た図','全身を真横から見た図（本人の左側面が見える向き）','全身を真後ろから見た図'],
+      framing:'すべてのマスで頭頂から足先（履物を含む）まで全身を入れ、全マスで身長の大きさと足元の高さを揃えてください。',
+      rule:'自然な直立姿勢で腕を体から少し離し、衣装の形が分かるようにしてください。向きは指定した1方向だけにしてください。'},
+    details: {title:'髪・衣装の詳細', rows:2, cols:2, size:[1024,1024], names:['hair_back','head_side','neckline','waist'], descriptions:['後頭部から肩までの後ろ髪を、真後ろの1方向から描いた単一画像','頭部を本人の右側面から見た、髪型・耳まわり・頭部の装飾品の単一接写','首元から胸の上までを正面から描いた、襟・首まわりの装飾品を含む単一接写','腰まわりを正面から描いた、ベルト・裾の始まりなど衣装の切り替え部分の単一接写'],
+      framing:'各マスは指定した部位の単一の接写だけにしてください。全身図・顔だけの図・足元の挿図は加えないでください。',
+      rule:'接写でも基準画像にない装飾・模様・部品を追加しないでください。基準画像で見えない部分は、新しい装飾を想像で加えず、見えている部分の形と色を自然につなげてください。装飾品だけを体から外した部品図にはしないでください。'},
+    angles: {title:'顔の向き追加', rows:2, cols:2, size:[1024,1024], names:['face_three_quarter_right','face_three_quarter_left','face_side_right','face_back_three_quarter'], descriptions:['本人の右へ約45度向いた斜め前の顔','本人の左へ約45度向いた斜め前の顔','頭部を真横から見た図（本人の右側面が見える向き）','頭部を斜め後ろから見た図'],
+      framing:'各マスは頭頂から首元・肩の上端までの頭部だけにし、全マスで頭部の大きさと高さを揃えてください。',
+      rule:'表情は全マス通常の表情にしてください。向きによって見えなくなる装飾品は隠れたままにしてください。'},
+    poses: {title:'動作・ポーズ', rows:2, cols:2, size:[1024,1536], names:['pose_standing','pose_walking','pose_sitting','pose_raising_hand'], descriptions:['自然に立つ全身（正面）','歩いている全身（斜め前）','簡素な椅子に座った全身（斜め前）','片手を上げた全身（正面）'],
+      framing:'すべてのマスで頭頂から足先（履物を含む）まで全身を入れてください。',
+      rule:'1マスに1人・1ポーズだけを描いてください。座るポーズの簡素な椅子以外、小物や背景物は加えないでください。'},
+    custom: {title:'カスタム', rows:2, cols:3, size:[1536,1024], names:[], descriptions:[],
+      framing:'各マスにはマスの内容で指定した1つの構図だけを描いてください。',
+      rule:''}
   };
   function integer(n, min, max, title) {
     if (!Number.isInteger(n) || n < min || n > max) throw new Error(`${title}は${min}〜${max}の整数で指定してください。`);
@@ -175,7 +191,18 @@
     const descriptions=labels.trim()?labels.split('\n').map(s=>s.trim()).filter(Boolean):p.descriptions;
     const order=Array.from({length:count},(_,i)=>`${i+1}. ${descriptions[i] || `同一キャラクターの${p.title}・別バリエーション`}`).join('\n');
     const shape=size[0]===size[1]?'正方形':size[0]>size[1]?'横長':'縦長';
-    return `LoRA用のキャラクター資料画像を1枚作成してください。${character.trim() || '添付したキャラクター資料を参照し、同一キャラクターの顔・髪・服・装飾の特徴を維持してください。'}\n\n構成: ${p.title}。${shape}のキャンバス（参考 ${size[0]}×${size[1]}px。対応する出力サイズで作成）。${rows}行×${cols}列、合計${count}マス。すべて同じ大きさの長方形を、傾けず、隙間なく規則正しく並べてください。\n\n画像の外周と全マスの境界には、色 ${color} の太く連続した水平・垂直の直線を描いてください。線幅は画像短辺の約0.6〜1%を目安とし、二重線・飾り枠・途切れ・影は不要です。この色は区切り線以外に使用しないでください。\n\n各マスの内側は単色の明るい背景にしてください。被写体はマス内に収め、髪・装飾・手足が線に触れないよう、各辺の約3%に余白を確保してください。${preset==='body'?'すべてのマスで頭頂から靴まで全身を入れてください。':preset==='views' || preset==='expressions'?'顔から肩までを各マスに1人ずつ描いてください。':''}見出し・番号・ラベル・文字・透かし・カラーパレットを入れないでください。\n\n左上から右へ、次に次の行へ、次の順に描いてください（このリストの文字は画像に描かないこと）:\n${order}\n\n指定した行列構成と境界線を優先し、キャラクターの特徴をマスごとに変えないでください。`;
+    const spec=character.trim()?`\n\nキャラクターの固定仕様（全マス共通。左右はキャラクター本人から見た左右）:\n${character.trim()}`:'';
+    return [
+      `LoRA用のキャラクター資料画像を1枚作成してください。添付した基準画像のキャラクターを、全マスで同一人物として描いてください。${spec}`,
+      `構成: ${p.title}。${shape}のキャンバス（参考 ${size[0]}×${size[1]}px。対応する出力サイズで作成）。${rows}行×${cols}列、合計${count}マス。すべて同じ大きさの長方形を、傾けず、隙間なく規則正しく並べてください。`,
+      `画像の外周と全マスの境界には、色 ${color} の太く連続した水平・垂直の直線を描いてください。線幅は画像短辺の約0.6〜1%を目安とし、二重線・飾り枠・途切れ・影は不要です。この色は区切り線以外に使用しないでください。`,
+      `1マス＝1つの絵:\n- 各マスには、指定された1つの視点・1つの構図だけを描いてください。人物を描くマスは1人だけ、接写のマスは指定された部位の単一の接写だけにしてください。\n- マス内部を再分割しないでください。小窓、挿図、別角度の追加図、比較図、複数人物、独立した部品図、内部の区切り線は描かないでください。区切り線は指定した外周とマス境界だけにしてください。\n- 画角: ${p.framing}\n- 被写体はマス内に収め、髪・装飾・手足が線に触れないよう、各辺の約3%に余白を確保してください。`,
+      `背景: 全マスの背景を、同じ無地の明るいニュートラルグレーに統一してください。表情・向き・ポーズ・内容によって背景色を変えないでください。グラデーション、模様、風景、背景の小物は入れないでください。背景色は枠線の色と明確に区別できる色にしてください。`,
+      `特徴の固定:\n- 添付した基準画像${spec?'と上記の固定仕様':''}を全マスで維持してください。顔立ち、体格、髪型（分け目・結び目・編み込みなどの位置）、装飾品（髪飾り・帽子・眼鏡・耳飾り・首飾りなど）の個数と取り付け位置、衣装の形・構造・配色・模様を変更・追加・省略しないでください。\n- 左右はキャラクター本人を基準にしてください。正面で画面の左に見えるものは、背面では画面の右に見えます。角度によって隠れる装飾を、見える側へ移したり複製したりしないでください。\n- 基準画像にない装飾、模様、金具、フリル、レース、小物などを追加しないでください。${p.rule?`\n- ${p.rule}`:''}`,
+      `見出し・番号・ラベル・文字・透かし・カラーパレットを入れないでください。`,
+      `左上から右へ、次に次の行へ、次の順に描いてください（このリストの文字は画像に描かないこと）:\n${order}`,
+      `指定した行列構成と境界線を優先し、キャラクターの特徴をマスごとに変えないでください。`
+    ].join('\n\n');
   }
   const api={VERSION,PRESETS,integer,validRect,makeRect,pixelBox,grid,colorRGB,bands,detect,outputSize,filename,template,readTemplate,prompt};
   if(typeof module!=='undefined' && module.exports) module.exports=api; else root.PanelCore=api;
