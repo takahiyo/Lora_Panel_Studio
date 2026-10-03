@@ -1,0 +1,53 @@
+# 開発状況 v0.2.0
+
+- 更新: 2026-10-03 Asia/Tokyo
+- 状態: ブラウザAI統合を実装・検証済み。
+- 保存先: E:\Local_Storage\GitHub\Lora_Panel_Studio。Git / 公開 / pushなし。
+- 機能: 同一画面の分割・通常リサイズ比較・Real-ESRGAN AI拡大2x/4x・GPU優先/CPU・一括・停止・PNG/ZIP保存。
+- 起動: 起動.cmdまたはnode preview.mjs。静的HTTP配信だけで画像受信・ネイティブ推論サービスなし。
+- 固定依存: ONNX Runtime Web 1.23.2 + animevideov3の第三者ONNX変換。assets/ai-assets.jsonに出典・SHA256。モデルは推論前にもハッシュを確認。
+- 自動検証: 13/13成功。AIの寸法・上限、全タイル中心と端の画素、反射パディング、古いテンプレート互換、既存検出・ZIPを確認。verify-assets.mjs、構文確認、ビルド成功。
+- 実機ブラウザ: Codex In-app Browser / localhost。WebGPUで179x228 → 358x456、CPU/WASMでも同寸法。顔三面図3枚のCPU一括・停止後の操作復帰・4倍正方形912x912・PNG保存を確認。座標変更で比較を隠し、undoで保持結果が復元。
+- AI ZIP: 顔三面図3枚、9ファイル。全CRC、原寸179x228と出力358x456、モデル/ハッシュ/provider/倍率履歴を確認。元画像の一覧は原寸cropから作り、その旨もmanifestに記録。
+- 画面: 1280x720でページ高720、ZIPボタンは表示領域内。設定とパネルの詳細は内側スクロール。狭い幅では同じページを縦にスクロールする。モバイル実機未検証。
+- 既知の制約: AIのLoRA学習品質は未検証。1アニメモデル、2x/4x PNG、1入力シートのパネル処理。別画像フォルダーの再帰一括、ノイズ強度、waifu2x、写真用モデル、クラウド推論は含まない。
+- file://は検証ツールのポリシーで未検証。AIはHTTP localhost/HTTPSで使用。
+- 次: 実際の素材で比較し、顔・装飾の変化と採用可否を確認。
+- 実行中: 最終版のpreview.mjs、127.0.0.1:8765。開発用静的配信として継続。
+
+---
+
+以下はv0.1.0作成時と旧ネイティブ統合案の履歴。最新状態は上のv0.2.0を正本とする。
+
+# 開発状況
+
+- 更新: 2026-10-03 17:37 Asia/Tokyo
+- 担当: Codex /root
+- 計画: DEVELOPMENT_PLAN.md
+- 状態: 完了（ローカル試作、HTML直開きの確認制限あり）
+- 作業場所: E:\Local_Storage\GitHub\Lora_Panel_Studio
+- 基準コミット: Git未使用。開始時に既存ファイルなし。
+- 共有: ローカルのみ。公開・push未実施。
+- 完了: 分割・検出・リサイズ・ZIP・テンプレート・生成プロンプト・UI実装、単一HTMLビルド、READMEと起動CMD、ローカルHTTPプレビュー用スクリプト。添付サンプルは43枠（Chibiを除く42枠が既定で選択）。ソース一式のZIPをoutputs直下に配布。
+- 検証対象: このフォルダーの最終ソースとビルド済みindex.html。Windows / Node.js v24.19.0 / Codex In-app Browser（ローカルHTTP）。
+- 検証コマンド: `node --test tests/*.test.cjs` 10/10成功。`node --check src/core.js`、`node --check src/zip.js`、`node --check src/app.js` 成功。`node build.mjs` 成功。
+- ブラウザ確認: 初期画面、合成デモの6枚自動分割、行数不一致時に既存6枠保持、添付画像43枠と42枚選択、枠ドラッグ追加と取り消し、数値編集と不正範囲拒否、ファイル選択によるPNG読み込み、保存JSONから43枠復元、全身三面図のプロンプトとコピー、最終ビルド再読み込み。
+- ZIP確認: 合成デモは21ファイル（6PNG原寸+6PNG出力+6TXT+3付随ファイル）、添付サンプルは87ファイル（42PNG原寸+42PNG出力+3付随ファイル）。全CRC・PNG寸法・元画像座標・JSONを検証。出力一覧を視覚確認。ブラウザのdownloadイベント待機がタイムアウトしたが、実際の保存済みファイルと完了表示を確認してから続行した。
+- 検証記録の補助: 作業用 `work/verify-export.cjs` でZIPを確認、`work/extract-check.cjs` で一覧とテンプレートを抽出。確認用一覧はoutputs/sample-contact-sheet.png。サンプル用JSONはassets/sample-template.json。
+- 既知の制約: HTML直開き(file://)は検証用ブラウザのURLポリシーで禁止され未検証。回避操作は行っていない。HTTP経由の主要操作を確認済み。画面幅は検証ブラウザの既定幅で確認、モバイル実機は未検証。AI超解像・意味認識分割・LoRA学習は含まない。
+- 次の作業: ユーザーがChatGPTで生成した枠付きシートで試す。検出失敗時は入力画像・行列数・色・連続率を確認。改善する場合はsrcを変更して再ビルドする。
+- 確認待ち: なし。公開・pushは未実施。
+- 実行中処理: ローカルプレビュー exec session 71842、127.0.0.1:8765、work/serve.mjs。ユーザー向けプレビューとして継続。別環境では同じプロセスを前提にせずpreview.mjsで起動。再起動時はポート使用を確認。
+
+## 指定先への保存
+- 2026-10-03 17:37 Asia/Tokyo: ユーザー指定の E:\Local_Storage\GitHub\Lora_Panel_Studio に18ファイルをコピーし、SHA256一致を確認。元の配布フォルダーは保持。
+- 保存先で node --test tests/*.test.cjs を実行し、10/10成功。その後に計画・状態文書の保存先情報を更新。コードとビルド済みHTMLはコピー元と同一。
+- 以前のoutputs/とwork/の記録は作成元 C:\Users\user\Documents\Codex\2026-10-03\new-chat を指す。保存先に作業用スクリプトは含めていない。稼働中のローカルプレビューは引き続き作成元のHTMLを配信。
+
+
+## AI拡大の統合調査（2026-10-03 Asia/Tokyo）
+- ユーザーの添付したアップスケーラー計画と既存コードを調査。統合案を AI_UPSCALE_INTEGRATION_PLAN.md に保存。
+- 原寸crop() → ネイティブAIエンジン → 最終寸法調整 → 保存の構成を提案。既存ブラウザUIを再利用し、GPU処理をローカルサービスに分離する。
+- 調査・提案まで完了。コード変更、エンジンのダウンロード、AI処理の実装・画質検証は未実施。添付計画の全項目を承認済み仕様とは扱わない。
+- waifu2x-ncnn-vulkanとReal-ESRGAN-ncnn-vulkanの公式READMEを確認。実機GPU/OSの読み取りはアクセス制限で未確認。RTX 3060 Ti等は添付計画の想定値。
+- 現行の分割機能と通常リサイズの状態は変わっていない。実装時は上記の統合案を読み、AGENTS.md・開発計画・起動構成を新機能に合わせて更新する。

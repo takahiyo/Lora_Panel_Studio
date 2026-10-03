@@ -1,0 +1,31 @@
+{
+  "runtime": "onnxruntime-web 1.23.2",
+  "model": "Real-ESRGAN realesr-animevideov3, unofficial ONNX export by ningtoba",
+  "modelCommit": "8e7094416ad91ec7477e968d348cd78742e20dc6",
+  "files": [
+    {
+      "path": "models/realesr-animevideov3.onnx",
+      "source": "https://raw.githubusercontent.com/ningtoba/Browsersnip-Upscale/8e7094416ad91ec7477e968d348cd78742e20dc6/public/models/realesr-animevideov3.onnx",
+      "bytes": 2535266,
+      "sha256": "7fcf233cfb4e6c3f1a35f41a62675ba4ff7d711beec3d06623773138ef77143f"
+    },
+    {
+      "path": "vendor/ort.webgpu.min.js",
+      "source": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.23.2.tgz",
+      "bytes": 66329,
+      "sha256": "c94f5bb9c17bd37168e9b4220facb2b6fc1dd125a5e91b7a680171840a27f254"
+    },
+    {
+      "path": "vendor/ort-wasm-simd-threaded.asyncify.mjs",
+      "source": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.23.2.tgz",
+      "bytes": 51913,
+      "sha256": "249b4dc791f081d33bd11760bfd669fe85f97289e679bbeb291b874272125dff"
+    },
+    {
+      "path": "vendor/ort-wasm-simd-threaded.asyncify.wasm",
+      "source": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.23.2.tgz",
+      "bytes": 25499390,
+      "sha256": "babec0bbddb6d3082623b99b7e1391b75e0729bcca076ff8424d7753af97fada"
+    }
+  ]
+}

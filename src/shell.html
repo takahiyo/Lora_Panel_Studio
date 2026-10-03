@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>LoRA Panel Studio — キャラクター資料を、学習素材へ。</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23265350'/%3E%3Cpath d='M8 6v18h18M6 10h18v16M17 10v14M8 17h16' stroke='%23f8c88e' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+<style>/*__STYLE__*/</style></head>
+<body>
+<header><div class="brand"><span class="brand-icon" aria-hidden="true">▦</span><div><strong>LoRA <span>Panel Studio</span></strong><small>キャラクター資料を、学習素材へ。</small></div></div><div class="header-right"><span class="local-badge"><i></i> ローカル処理</span><span class="version" id="version"></span></div></header>
+<nav class="topbar" aria-label="作業切り替え"><div class="tabs"><button id="tabEditor" class="tab active" aria-pressed="true">01　分割・拡大</button><button id="tabPrompt" class="tab" aria-pressed="false">02　生成プロンプト</button></div><div class="top-actions"><button id="sample" class="quiet">添付サンプルを試す</button><button id="demo" class="quiet">枠検出デモ</button></div></nav>
+<main id="editor" class="editor">
+<aside class="settings">
+<div class="section-title"><span class="step">1</span><h2>素材を読み込む</h2></div>
+<button id="open" class="upload"><span aria-hidden="true">＋</span><strong>画像を選ぶ</strong><small>PNG / JPEG / WebP ・ 35 MBまで</small></button><input id="file" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+<p class="muted compact">画像はこのブラウザ内で処理します。</p>
+<div class="section-title separated"><span class="step">2</span><h2>分割を設定</h2></div>
+<label>資料タイプ<select id="preset"><option value="expressions">表情 · 2行 × 3列</option><option value="views">顔の三面図 · 1行 × 3列</option><option value="body">全身の三面図 · 1行 × 3列</option><option value="details">髪・衣装の詳細 · 2行 × 2列</option><option value="custom">カスタム</option></select></label>
+<div class="pair"><label>行数<input id="rows" type="number" min="1" max="10" value="2"></label><label>列数<input id="cols" type="number" min="1" max="10" value="3"></label></div>
+<div class="pair"><label>枠線の色<input id="color" type="color" value="#ff00ff"></label><label>内側余白 <span>px</span><input id="inset" type="number" min="0" max="100" value="4"></label></div>
+<button id="detect" class="primary full" disabled>枠線から自動分割</button><button id="grid" class="secondary full" disabled>均等グリッドで分割</button>
+<details class="advanced"><summary>検出の調整</summary><label>色の許容差 <output id="tolValue">80</output><input id="tolerance" type="range" min="0" max="180" value="80"></label><label>線の連続率 <output id="coverageValue">70%</output><input id="coverage" type="range" min="30" max="100" value="70"></label><p class="muted compact">外周を含む縦・横の直線を検出します。細い罫線や混在レイアウトは手動で指定できます。</p></details>
+<div class="section-title separated"><span class="step">3</span><h2>出力を設定</h2></div>
+<label>拡大方式<select id="mode"><option value="resize">通常リサイズ</option><option value="ai">AI拡大 · アニメ向け</option></select></label>
+<div id="aiSettings" hidden><div class="pair"><label>AI倍率<select id="factor"><option value="2">2倍</option><option value="4">4倍</option></select></label><label>処理エンジン<select id="provider"><option value="auto">GPU優先</option><option value="wasm">CPU</option></select></label></div><p class="muted compact">Real-ESRGAN · animevideov3<br>4倍モデルで推論し、2倍時は縮小します。</p><button id="clearAI" class="quiet full">AI結果を消す</button></div>
+<label id="edgeLabel">拡大後の長辺<select id="edge"><option value="0">原寸のまま</option><option value="512">512 px</option><option value="768">768 px</option><option value="1024" selected>1024 px</option><option value="1536">1536 px</option><option value="2048">2048 px</option></select></label>
+<label class="check"><input type="checkbox" id="square">余白を足して正方形にする</label><label class="check"><input type="checkbox" id="originals" checked>原寸の切り出しも保存</label>
+<label>トリガーワード <span>任意</span><input id="trigger" maxlength="200" placeholder="例: my_character"></label>
+<p id="resizeHelp" class="muted compact">縦横比を保った通常リサイズです。</p>
+<div class="template-actions"><button id="saveTemplate" class="quiet" disabled>設定を保存</button><button id="loadTemplate" class="quiet" disabled>設定を読み込む</button><input id="templateFile" type="file" accept=".json,application/json" hidden></div>
+</aside>
+<section class="workspace" aria-label="画像編集">
+<div class="workspace-heading"><div><span class="eyebrow">SOURCE SHEET</span><h1 id="sourceTitle">資料を、ひとつずつ。</h1></div><span id="dimensions" class="dimension-badge">画像未選択</span></div>
+<div class="canvas-tools"><div class="tool-group"><button id="selectTool" class="tool active" disabled aria-pressed="true">↖ 選択・移動</button><button id="drawTool" class="tool" disabled aria-pressed="false">＋ 枠を追加</button><button id="undo" class="tool" disabled>↶ 元に戻す</button></div><label class="check"><input type="checkbox" id="showBoxes" checked>枠を表示</label></div>
+<div class="visual-row"><div class="source-pane"><div id="stage" class="stage"><div id="empty" class="empty"><div class="empty-art" aria-hidden="true"><span>▧</span><span>▧</span><span>▧</span></div><h2>シートから、使える一枚へ。</h2><p>画像をここにドロップするか、<br>「画像を選ぶ」から素材を読み込んでください。</p><button id="emptyDemo" class="secondary">添付サンプルで試す →</button><small>枠付きグリッドの画像なら、自動分割できます。</small></div><canvas id="canvas" tabindex="0" aria-label="切り出し枠を編集する画像。選択した枠は矢印キーで移動できます。" hidden></canvas></div>
+<div class="stage-footer"><span id="canvasHint">PNG / JPEG / WebPをドラッグ＆ドロップ</span><span id="sourceKind"></span></div>
+<div id="message" class="notice" role="status" aria-live="polite">まずはサンプルで、切り出しから保存まで試せます。</div>
+</div><section class="ai-workbench" aria-label="AI拡大と比較">
+<div class="ai-heading"><div><span class="eyebrow">UPSCALE & COMPARE</span><h2>切り出した一枚を、拡大する。</h2></div><span id="engineBadge" class="dimension-badge">AI未起動</span></div>
+<div class="ai-actions"><button id="aiOne" class="primary" disabled>選択中をAI拡大</button><button id="aiBatch" class="secondary" disabled>対象を一括AI拡大</button><button id="aiStop" class="quiet danger" disabled>停止</button></div>
+<p id="aiStatus" class="muted compact" role="status" aria-live="polite">まず1枚で、線や顔の変化を確認してください。画像は送信しません。</p><progress id="aiProgress" max="1" value="0" hidden aria-label="AI処理の進行状況"></progress>
+<div id="comparison" class="comparison" hidden><figure><figcaption>通常リサイズ <span id="beforeSize"></span></figcaption><canvas id="beforeCanvas" aria-label="通常リサイズの比較画像"></canvas></figure><figure><figcaption>AI拡大 <span id="afterSize"></span></figcaption><canvas id="afterCanvas" aria-label="AI拡大の比較画像"></canvas></figure></div>
+<p id="comparisonEmpty" class="muted compact">AI拡大後に、同じ表示倍率で比較できます。</p>
+<p class="muted compact">AIは細部を推定します。LoRAに使う前に、目・装飾・線の変化を確認してください。</p>
+</section></div>
+<div class="preview-heading"><div><span class="eyebrow">EXTRACTED PANELS</span><h2>切り出しプレビュー <span id="previewCount">0</span></h2></div><span class="muted">クリックして枠を編集</span></div><div id="previews" class="previews"><p class="muted preview-empty">作成した枠のプレビューがここに並びます。</p></div>
+</section>
+<aside class="inspector"><div class="inspector-scroll"><div class="inspector-heading"><h2>パネル <span id="panelCount">0</span></h2><button id="all" class="quiet" disabled>すべて選択</button></div><div id="panels" class="panel-list"><p class="muted compact">分割したパネルを選んで、名前や切り出し範囲を調整できます。</p></div>
+<div id="detail" class="panel-detail" hidden><span class="eyebrow">SELECTED PANEL</span><label>ファイル名<input id="name" maxlength="120"></label><div class="pair"><label>左 <span>px</span><input type="number" id="rx" min="0"></label><label>上 <span>px</span><input type="number" id="ry" min="0"></label></div><div class="pair"><label>幅 <span>px</span><input type="number" id="rw" min="1"></label><label>高さ <span>px</span><input type="number" id="rh" min="1"></label></div><button id="applyRect" class="secondary full">範囲を適用</button><label>キャプション <span>任意</span><textarea id="caption" rows="2" maxlength="2000" placeholder="例: smiling, front view"></textarea></label><p id="outputInfo" class="muted compact"></p><div class="pair"><button id="single" class="quiet">PNG保存</button><button id="remove" class="quiet danger">枠を削除</button></div></div>
+</div><div class="export-block"><p><strong id="selectedCount">0枚</strong> を書き出し</p><button id="export" class="primary full" disabled>↓ ZIPで一括保存</button><small>個別PNG・確認一覧・設定JSON<br>キャプション入力時はTXTも保存</small></div></aside>
+</main>
+<main id="promptView" class="prompt-view" hidden>
+<section class="prompt-intro"><span class="eyebrow">DESIGNED FOR CHATGPT</span><h1>分けやすい素材から、<br>はじめよう。</h1><p>このアプリで切り出しやすい資料画像を、<br>ChatGPTに作成してもらうための指示を用意します。</p><div class="prompt-note"><strong>画像の実寸に合わせて処理します</strong><p>サイズは参考値です。ChatGPTで指定どおりの画素数や配置になることを保証するものではありません。生成後に枠を確認してください。</p><a href="https://developers.openai.com/api/docs/guides/image-generation" target="_blank" rel="noreferrer">OpenAI公式の画像サイズ資料 ↗</a></div><p class="muted">顔や表情は少数マス、全身は縦長のマスを推奨。1枚に詰め込みすぎないことで、元の細部を確保しやすくなります。</p></section>
+<section class="prompt-controls"><div class="section-title"><span class="step">1</span><h2>生成するシート</h2></div><label>資料タイプ<select id="promptPreset"><option value="expressions">表情</option><option value="views">顔の三面図</option><option value="body">全身の三面図</option><option value="details">髪・衣装の詳細</option><option value="custom">カスタム</option></select></label><div class="pair"><label>行数<input type="number" id="promptRows" min="1" max="10" value="2"></label><label>列数<input type="number" id="promptCols" min="1" max="10" value="3"></label></div><label>キャンバスの形状 <span>参考寸法</span><select id="promptSize"><option value="1536x1024">横長 · 1536 × 1024</option><option value="1024x1024">正方形 · 1024 × 1024</option><option value="1024x1536">縦長 · 1024 × 1536</option></select></label><label>枠線の色<input type="color" id="promptColor" value="#ff00ff"></label><label>キャラクターの説明 <span>任意</span><textarea id="character" rows="3" placeholder="空欄なら、添付した資料画像のキャラクターを維持する指示になります。"></textarea></label><label>マスの内容 <span>1行に1マス・左上から</span><textarea id="labels" rows="6"></textarea></label><button id="usePrompt" class="secondary full">この行列・色を分割設定に反映</button></section>
+<section class="prompt-output"><div class="preview-heading"><div><span class="eyebrow">YOUR GENERATION BRIEF</span><h2>ChatGPTに渡すプロンプト</h2></div><button id="copyPrompt" class="primary">コピー</button></div><textarea id="promptText" readonly aria-label="生成用プロンプト"></textarea><div id="promptStatus" class="notice" role="status">ChatGPTでキャラクター資料を添付し、このプロンプトを貼り付けてください。</div><div class="prompt-tips"><strong>生成後は、この順番で。</strong><p>画像をダウンロード → 分割画面で読み込み → 枠線から自動分割 → 切れや枠線の残りを確認 → ZIP保存。</p></div></section>
+</main>
+<footer><span>LoRA Panel Studio</span><span>画像の送信なし · APIキー不要 · ブラウザ内AI処理</span></footer>
+<script>/*__CORE__*/</script><script>/*__AI_CORE__*/</script><script>/*__ZIP__*/</script><script>/*__SAMPLE__*/</script><script>/*__APP__*/</script>
+</body></html>
